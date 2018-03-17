@@ -1,4 +1,4 @@
-function h = mutualinfos(vec1,vec2,th)
+function [h, h0] = mutualinfos(vec1,vec2,th)
 h0 = mutualinfo(vec1,vec2);
 n=length(vec1);
 ncont=0;

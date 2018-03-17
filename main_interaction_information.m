@@ -2,10 +2,12 @@ clear;clc;
 %%% HERE LOAD YOUR DATA, CALL IT mydata %%%%%%%%%%
 [npoints, n]=size(mydata); %make sure that the variables are the 2nd dimension
 th=0.05/(n*(n-1)*0.5); % threshold with Bonferroni
+muti_binary=zeros(n);
 muti=zeros(n);
 for i=1:n
     for j=i+1:n
-        muti(i,j)=mutualinfos(mydata(:,i),mydata(:,j),th); %mutual info with threshold
+        [muti_binary(i,j), muti(i,j)]=mutualinfos(mydata(:,i),mydata(:,j),th); %mutual info with threshold
+        muti_binary(j,i)=muti_binary(i,j);
         muti(j,i)=muti(i,j);
     end
 end
