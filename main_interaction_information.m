@@ -7,7 +7,7 @@ load('C:\Users\dmarinaz\Dropbox\code\MI_phys_networks\santos.mat');mydata=data;c
 [npoints, n]=size(mydata); %make sure that the variables are the 2nd dimension
 p_val=0.05; %p value for surrogates
 ndmax=floor(n/10); %number of variables for partial conditioning
-condtype=3; % 1 full conditioning; 2 partial conditioning; 3 triplet conditioning
+condtype=2; % 1 full conditioning; 2 partial conditioning; 3 triplet conditioning
 
 %%
 %%% now build the 3D matrix of II values, plus a list of red, syn,
@@ -57,8 +57,8 @@ for i=1:n
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % here you compute MI conditioned to the rest of the system. Can be tricky with many variables/fewer points
                 condind=setdiff(1:n,[i,j]);
-                condvec=zeros(npoints,1);
-                for icond=1:n-2
+                condvec=mydata(:,condind(1));
+                for icond=2:length(condind)
                     condvec=mergemultivariables(condvec,mydata(:,condind(icond)));
                 end
                 [CMI_binary(i,j), CMI(i,j)]=condmutualinfos(mydata(:,i),mydata(:,j),condvec,p_corr); %mutual info with threshold
@@ -72,7 +72,8 @@ for i=1:n
                 A=ind_PC(j,:);
                 condind = A(~ismembc(A(:), i));
                 %condind = condind(1:ndmax);
-                for icond=1:n-2
+                condvec=mydata(:,condind(1));
+                for icond=2:length(condind)
                     condvec=mergemultivariables(condvec,mydata(:,condind(icond)));
                 end
                 [CMI_binary(i,j), CMI(i,j)]=condmutualinfos(mydata(:,i),mydata(:,j),condvec,p_corr); %mutual info with threshold
