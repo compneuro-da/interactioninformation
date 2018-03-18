@@ -17,9 +17,9 @@ if h0 >0
     if ncont >th*nperm
         h=0;
     else
-        h=1;
+        h=h0;
     end
-else
+elseif h0<0
     
     for j=1:nperm
         vec1=vec1(randperm(n));
@@ -32,6 +32,8 @@ else
     if ncont >th*nperm
         h=0;
     else
-        h=-1;
+        h=h0;
     end
+else
+    h=0;
 end

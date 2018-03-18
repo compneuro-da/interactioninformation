@@ -1,19 +1,35 @@
+%%
+% main script interaction information
 clear;clc;
 %%% HERE LOAD YOUR DATA, CALL IT mydata %%%%%%%%%%
+load('C:\Users\dmarinaz\Dropbox\code\MI_phys_networks\santos.mat');mydata=data;clear data;
 [npoints, n]=size(mydata); %make sure that the variables are the 2nd dimension
 th=0.05/(n*(n-1)*0.5); % threshold with Bonferroni
-muti_binary=zeros(n);
-muti=zeros(n);
+
+%%
+MI_binary=zeros(n);
+MI=zeros(n);
+CMI_binary=zeros(n);
+CMI=zeros(n);
 for i=1:n
     for j=i+1:n
-        [muti_binary(i,j), muti(i,j)]=mutualinfos(mydata(:,i),mydata(:,j),th); %mutual info with threshold
-        muti_binary(j,i)=muti_binary(i,j);
-        muti(j,i)=muti(i,j);
+        [MI_binary(i,j), MI(i,j)]=mutualinfos(mydata(:,i),mydata(:,j),th); %mutual info with threshold
+        MI_binary(j,i)=MI_binary(i,j);
+        MI(j,i)=MI(i,j);
+        % here you compute MI conditioned to the rest of the system. Can be tricky with many variables/fewer points 
+        condind=setdiff(1:n,[i,j]);
+        condvec=zeros(npoints,1);
+        for icond=1:n-2
+            condvec=mergemultivariables(condvec,mydata(:,condind(icond)));
+        end
+        [CMI_binary(i,j), CMI(i,j)]=condmutualinfos(mydata(:,i),mydata(:,j),condvec,th); %mutual info with threshold
+        CMI_binary(j,i)=CMI_binary(i,j);
+        CMI(j,i)=CMI(i,j);
     end
 end
 
 th=0.05*6/(n*(n-1)*(n-2)); %threshold for triplets with Bonferroni
-
+%%
 %%% now build the 3D matrix of II values, plus a list of red, syn,
 %%% independent triplets
 II_tot=zeros(n,n,n);
@@ -32,16 +48,14 @@ for i=1:n
             II_tot(k,j,i)=II;
             if Itest>0
                 Ind_syn=Ind_syn+1;
-                list_syn(Ind_syn)=mat2str([i,j,k]);
+                list_syn{Ind_syn}=mat2str([i,j,k]);
             elseif Itest<0
                 Ind_red=Ind_red+1;
-                list_red(Ind_red)=mat2str([i,j,k]);
+                list_red{Ind_red}=mat2str([i,j,k]);
             else
                 Ind_ind=Ind_ind+1;
-                list_ind(Ind_ind)=mat2str([i,j,k]);
+                list_ind{Ind_ind}=mat2str([i,j,k]);
             end
         end
     end
 end
-
-
