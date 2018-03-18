@@ -17,14 +17,14 @@ for i=1:n
         MI_binary(j,i)=MI_binary(i,j);
         MI(j,i)=MI(i,j);
         % here you compute MI conditioned to the rest of the system. Can be tricky with many variables/fewer points 
-        condind=setdiff(1:n,[i,j]);
-        condvec=zeros(npoints,1);
-        for icond=1:n-2
-            condvec=mergemultivariables(condvec,mydata(:,condind(icond)));
-        end
-        [CMI_binary(i,j), CMI(i,j)]=condmutualinfos(mydata(:,i),mydata(:,j),condvec,th); %mutual info with threshold
-        CMI_binary(j,i)=CMI_binary(i,j);
-        CMI(j,i)=CMI(i,j);
+%         condind=setdiff(1:n,[i,j]);
+%         condvec=zeros(npoints,1);
+%         for icond=1:n-2
+%             condvec=mergemultivariables(condvec,mydata(:,condind(icond)));
+%         end
+%         [CMI_binary(i,j), CMI(i,j)]=condmutualinfos(mydata(:,i),mydata(:,j),condvec,th); %mutual info with threshold
+%         CMI_binary(j,i)=CMI_binary(i,j);
+%         CMI(j,i)=CMI(i,j);
     end
 end
 
