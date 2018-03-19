@@ -2,7 +2,7 @@
 % main script interaction information
 clear;clc;
 %%% HERE LOAD YOUR DATA, CALL IT mydata %%%%%%%%%%
-load('C:\Users\dmarinaz\Dropbox\code\MI_phys_networks\ptsd.mat');mydata=data;clear data;
+load('C:\Users\dmarinaz\Dropbox\code\MI_phys_networks\santos.mat');mydata=data;clear data;
 %%%
 [npoints, n]=size(mydata); %make sure that the variables are the 2nd dimension
 p_val=0.05; %p value for surrogates
@@ -17,6 +17,8 @@ II_tot=zeros(n,n,n);
 Ind_red=0;
 Ind_syn=0;
 Ind_ind=0;
+list_red=[];
+list_syn=[];
 for i=1:n
     for j=i+1:n
         for k=j+1:n
@@ -29,13 +31,10 @@ for i=1:n
             II_tot(k,j,i)=II;
             if Itest>0
                 Ind_syn=Ind_syn+1;
-                list_syn(Ind_syn,:)=[i,j,k];
+                list_syn=[list_syn;[i,j,k]];
             elseif Itest<0
                 Ind_red=Ind_red+1;
-                list_red(Ind_red,:)=[i,j,k];
-            else
-                Ind_ind=Ind_ind+1;
-                list_ind(Ind_ind,:)=[i,j,k];
+                list_red=[list_red;[i,j,k]];
             end
         end
     end
