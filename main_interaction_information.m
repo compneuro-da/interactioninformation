@@ -47,6 +47,7 @@ MI_binary=zeros(n);
 MI=zeros(n);
 CMI_binary=MI_binary;
 CMI=MI;
+NET_II=MI;
 for i=1:n
     for j=i+1:n
         [MI_binary(i,j), MI(i,j)]=mutualinfos(mydata(:,i),mydata(:,j),p_corr); %mutual info with threshold
@@ -83,7 +84,9 @@ for i=1:n
             case 3
                 %%% here you condition only on third members of synergetic or redundant triplets
                 list_cond=[list_red; list_red];
-                row = find(any(list_red == i, 2) & any(list_red == j, 2));
+                row = find(any(list_cond == i, 2) & any(list_cond == j, 2));
+                NET_II(i,j)=length(row); %build a graph in which the links are the number of multiplets in which the two nodes are both present
+                NET_II(j,i)=NET_II(j,i);
                 if ~isempty(row)
                     condvec=zeros(npoints,1);
                     for icond=1:length(row)
