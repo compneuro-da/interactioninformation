@@ -2,12 +2,12 @@
 % main script interaction information
 clear;clc;
 %%% HERE LOAD YOUR DATA, CALL IT mydata %%%%%%%%%%
-load('C:\Users\dmarinaz\Dropbox\code\MI_phys_networks\santos.mat');mydata=data;clear data;
+load('C:\Users\dmarinaz\Dropbox\code\MI_phys_networks\ptsd.mat');mydata=data;clear data;
 %%%
 [npoints, n]=size(mydata); %make sure that the variables are the 2nd dimension
 p_val=0.05; %p value for surrogates
 ndmax=floor(n/10); %number of variables for partial conditioning
-condtype=2; % 1 full conditioning; 2 partial conditioning; 3 triplet conditioning
+condtype=3; % 1 full conditioning; 2 partial conditioning; 3 triplet conditioning
 
 %%
 %%% now build the 3D matrix of II values, plus a list of red, syn,
