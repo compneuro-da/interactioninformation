@@ -83,7 +83,7 @@ for i=1:n
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             case 3
                 %%% here you condition only on third members of synergetic or redundant triplets
-                list_cond=[list_red; list_red];
+                list_cond=[list_red; list_syn];
                 row = find(any(list_cond == i, 2) & any(list_cond == j, 2));
                 NET_II(i,j)=length(row); %build a graph in which the links are the number of multiplets in which the two nodes are both present
                 NET_II(j,i)=NET_II(j,i);
