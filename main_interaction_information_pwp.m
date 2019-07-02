@@ -2,8 +2,20 @@
 % main script interaction information
 clear;clc;
 %%% HERE LOAD YOUR DATA, CALL IT mydata %%%%%%%%%%
-load('C:\Users\dmarinaz\Dropbox\code\MI_psych_networks\ex_coll.mat');mydata=data;clear data;
-%load('C:\Users\dmarinaz\Dropbox\code\MI_phys_networks\ptsd.mat');mydata=data;clear data;
+load ex_coll;mydata=data;clear data;
+% ex_coll: collinearity, from Eiko Fried https://twitter.com/EikoFried/status/1145779893029896192
+%x1=randn(10000,1);
+%x2=randn(10000,1);
+%x3=x1+x2+randn(10000,1);
+%data=[x1 x2 x3];
+
+% ex_syn: synergistic info from https://iopscience.iop.org/article/10.1088/1367-2630/16/10/105003
+%x1=randn(10000,1);
+%x2=randn(10000,1);
+%x3=randn(10000,1);
+%x4=0.1*(x1+x2)+0.6*x2.*x3+0.1+randn(10000,1);
+%data=[x1 x2 x3 x4];
+
 %%%
 [npoints, n]=size(mydata); %make sure that the variables are the 2nd dimension
 p_val=0.05; %p value for surrogates
@@ -134,7 +146,7 @@ title('C - lower tri: pairwise, upper tri: conditioned');
 colormap(a1,brewermap([],'PRGn'));colorbar
 xticks(a1,1:n);yticks(a1,1:n);
 a2=subplot(2,1,2);imagesc(MI_plot);axis square;
-title('MI - lower tri: pairwise, upper tri: conditioned, red: synergistic FP');
+title('MI - lower tri: pairwise, upper tri: conditioned, red: shared info FP');
 colormap(a2,brewermap([],'BuGn'));colorbar
 xticks(a2,1:n);yticks(a2,1:n);
 hold on
