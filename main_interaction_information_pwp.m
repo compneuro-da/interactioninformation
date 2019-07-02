@@ -1,21 +1,35 @@
 %%
 % main script interaction information
 clear;clc;
-%%% HERE LOAD YOUR DATA, CALL IT mydata %%%%%%%%%%
-load ex_coll;mydata=data;clear data;
-% ex_coll: collinearity, from Eiko Fried https://twitter.com/EikoFried/status/1145779893029896192
-%x1=randn(10000,1);
-%x2=randn(10000,1);
-%x3=x1+x2+randn(10000,1);
-%data=[x1 x2 x3];
+example='chain'; % choose 'collider', 'chain', 'synergy'
+%%% HERE LOAD YOUR DATA, CALL IT mydata, or generate it %%%%%%%%%%
 
-% ex_syn: synergistic info from https://iopscience.iop.org/article/10.1088/1367-2630/16/10/105003
-%x1=randn(10000,1);
-%x2=randn(10000,1);
-%x3=randn(10000,1);
-%x4=0.1*(x1+x2)+0.6*x2.*x3+0.1+randn(10000,1);
-%data=[x1 x2 x3 x4];
-
+switch example
+    case 'collider'
+        % collinearity, from Eiko Fried https://twitter.com/EikoFried/status/1145779893029896192
+        x1=randn(10000,1);
+        x2=randn(10000,1);
+        x3=x1+x2+randn(10000,1);
+        mydata=[x1 x2 x3];
+        titlestr={'x1=randn(10000,1)','x2=randn(10000,1)','x3=x1+x2+randn(10000,1)'};
+    case 'synergy' 
+        % synergistic info from https://iopscience.iop.org/article/10.1088/1367-2630/16/10/105003
+        x1=randn(10000,1);
+        x2=randn(10000,1);
+        x3=randn(10000,1);
+        x4=0.1*(x1+x2)+0.6*x2.*x3+0.1+randn(10000,1);
+        mydata=[x1 x2 x3 x4];
+        titlestr={'x1=randn(10000,1)','x2=randn(10000,1)','x3=x3=randn(10000,1)','x4=0.1*(x1+x2)+0.6*x2.*x3+0.1+randn(10000,1)'};
+        
+    case 'chain'
+        % chain-like effect (redundancy)
+        x1=randn(10000,1);
+        x2=.5*x1+0.5*randn(10000,1);
+        x3=.5*x2+0.5*randn(10000,1);
+        x4=.5*x3+0.5*randn(10000,1);
+        mydata=[x1 x2 x3 x4];
+        titlestr={'x1=randn(10000,1)','x2=.5*x1+0.5*randn(10000,1)','x3=.5*x2+0.5*randn(10000,1)','x4=.5*x3+0.5*randn(10000,1)'};
+end
 %%%
 [npoints, n]=size(mydata); %make sure that the variables are the 2nd dimension
 p_val=0.05; %p value for surrogates
@@ -120,24 +134,39 @@ end
 [c,p]=corr(mydata);c=c.*(p<p_corr);
 [pc,p]=partialcorr(mydata);pc=pc.*(p<p_corr);
 for i=1:n;c(i,i)=0;pc(i,i)=0;end
+diff_red=zeros(n);
 diff_syn=zeros(n);
 for i=1:n
     for j=i+1:n
         for k=j+1:n
             var_set=[i,j,k];
-            if any(sum(list_syn'-var_set')==0)
-                CMI_01=(CMI_binary>0);
-                MI_01=(MI_binary>0);
-                w=CMI_01.*MI_01;
-                diff_syn=diff_syn+(CMI_01-MI_01);
-                CMI_binary=CMI_binary.*w;
+            if ~isempty(list_red)
+                if any(sum(list_red'-var_set')==0)
+                    CMI_01=(CMI_binary>0);
+                    MI_01=(MI_binary>0);
+                    w=or(CMI_01,MI_01);
+                    diff_red=diff_red+(CMI_01-MI_01);
+                    CMI_binary(var_set,var_set)=CMI_binary(var_set,var_set).*w(var_set,var_set);
+                end
+            end
+            if ~isempty(list_syn)
+                if any(sum(list_syn'-var_set')==0)
+                    CMI_01=(CMI_binary>0);
+                    MI_01=(MI_binary>0);
+                    if sum(sum(MI_01(var_set,var_set)))>2
+                        w=CMI_01.*MI_01;
+                        diff_syn=diff_syn+(CMI_01-MI_01);
+                        CMI_binary(var_set,var_set)=CMI_binary(var_set,var_set).*w(var_set,var_set);
+                    end
+                end
             end
         end
     end
 end
+diff_red=triu(diff_red);
 diff_syn=triu(diff_syn);
 
-C_plot=triu(pc)+triu(c,1)';  
+C_plot=triu(pc)+triu(c,1)';
 MI_plot=triu(CMI_binary)+triu(MI_binary,1)';
 
 figure;
@@ -145,13 +174,18 @@ a1=subplot(2,1,1);imagesc(C_plot,[-max(max(abs(C_plot))) max(max(abs(C_plot)))])
 title('C - lower tri: pairwise, upper tri: conditioned');
 colormap(a1,brewermap([],'PRGn'));colorbar
 xticks(a1,1:n);yticks(a1,1:n);
+text(-n-2,n-2,titlestr,'FontSize',12);
 a2=subplot(2,1,2);imagesc(MI_plot);axis square;
-title('MI - lower tri: pairwise, upper tri: conditioned, red: shared info FP');
+title({'MI - lower tri: pairwise, upper tri: conditioned', 'red: shared info FP, yellow: collider FP'});
 colormap(a2,brewermap([],'BuGn'));colorbar
 xticks(a2,1:n);yticks(a2,1:n);
 hold on
-[xd, yd]=find(diff_syn);
-for i=1:length(xd)
-    r = rectangle('Position',[yd(i)-.5 xd(i)-.5 1 1],'EdgeColor','r','LineWidth',3);
+[xr, yr]=find(diff_red);
+for i=1:length(xr)
+    rr = rectangle('Position',[yr(i)-.5 xr(i)-.5 1 1],'EdgeColor','r','LineWidth',3);
+end
+[xs, ys]=find(diff_syn);
+for i=1:length(xs)
+    rs = rectangle('Position',[ys(i)-.5 xs(i)-.5 1 1],'EdgeColor','y','LineWidth',3);
 end
 set(findobj(gcf,'type','axes'),'FontSize',12)
