@@ -1,37 +1,39 @@
 %%
 % main script interaction information
 clear;clc;
+rng(1423);
+np=10000;
 example='chain'; % choose 'collider', 'chain', 'synergy'
 %%% HERE LOAD YOUR DATA, CALL IT mydata, or generate it %%%%%%%%%%
 
 switch example
     case 'collider'
-        % collinearity, from Eiko Fried https://twitter.com/EikoFried/status/1145779893029896192
-        x1=randn(10000,1);
-        x2=randn(10000,1);
-        x3=x1+x2+randn(10000,1);
+        % collider, from Eiko Fried https://twitter.com/EikoFried/status/1145779893029896192
+        x1=randn(np,1);
+        x2=randn(np,1);
+        x3=x1+x2+randn(np,1);
         mydata=[x1 x2 x3];
-        titlestr={'x1=randn(10000,1)','x2=randn(10000,1)','x3=x1+x2+randn(10000,1)'};
+        titlestr={['np=' num2str(np)], 'x1=randn(np,1)','x2=randn(np,1)','x3=x1+x2+randn(np,1)'};
     case 'synergy' 
         % synergistic info from https://iopscience.iop.org/article/10.1088/1367-2630/16/10/105003
-        x1=randn(10000,1);
-        x2=randn(10000,1);
-        x3=randn(10000,1);
-        x4=0.1*(x1+x2)+0.6*x2.*x3+0.1+randn(10000,1);
+        x1=randn(np,1);
+        x2=randn(np,1);
+        x3=randn(np,1);
+        x4=0.3*(x1+x2)+0.6*x2.*x3+0.1+randn(np,1);
         mydata=[x1 x2 x3 x4];
-        titlestr={'x1=randn(10000,1)','x2=randn(10000,1)','x3=x3=randn(10000,1)','x4=0.1*(x1+x2)+0.6*x2.*x3+0.1+randn(10000,1)'};
+        titlestr={['np=' num2str(np)], 'x1=randn(np,1)','x2=randn(np,1)','x3=x3=randn(np,1)','x4=0.3*(x1+x2)+0.6*x2.*x3+0.1+randn(np,1)'};
         
     case 'chain'
         % chain-like effect (redundancy)
-        x1=randn(10000,1);
-        x2=.5*x1+0.5*randn(10000,1);
-        x3=.5*x2+0.5*randn(10000,1);
-        x4=.5*x3+0.5*randn(10000,1);
+        x1=randn(np,1);
+        x2=.5*x1+0.5*randn(np,1);
+        x3=.5*x2+0.5*randn(np,1);
+        x4=.5*x3+0.5*randn(np,1);
         mydata=[x1 x2 x3 x4];
-        titlestr={'x1=randn(10000,1)','x2=.5*x1+0.5*randn(10000,1)','x3=.5*x2+0.5*randn(10000,1)','x4=.5*x3+0.5*randn(10000,1)'};
+        titlestr={['np=' num2str(np)], 'x1=randn(np,1)','x2=.5*x1+0.5*randn(np,1)','x3=.5*x2+0.5*randn(np,1)','x4=.5*x3+0.5*randn(np,1)'};
 end
 %%%
-[npoints, n]=size(mydata); %make sure that the variables are the 2nd dimension
+[np, n]=size(mydata); %make sure that the variables are the 2nd dimension
 p_val=0.05; %p value for surrogates
 ndmax=floor(n/5); %number of variables for partial conditioning, can be changed
 condtype=3; % 1 full conditioning; 2 partial conditioning; 3 triplet conditioning
@@ -114,7 +116,7 @@ for i=1:n
                 NET_II(i,j)=length(row); %build a graph in which the links are the number of multiplets in which the two nodes are both present
                 NET_II(j,i)=NET_II(j,i);
                 if ~isempty(row)
-                    condvec=zeros(npoints,1);
+                    condvec=zeros(np,1);
                     for icond=1:length(row)
                         condind=setdiff(list_cond(row(icond),:),[i,j]);
                         condvec=mergemultivariables(condvec,mydata(:,condind));
@@ -153,7 +155,8 @@ for i=1:n
                 if any(sum(list_syn'-var_set')==0)
                     CMI_01=(CMI_binary>0);
                     MI_01=(MI_binary>0);
-                    if sum(sum(MI_01(var_set,var_set)))>2
+                    C_01=(abs(c)>0);
+                    if (sum(sum(MI_01(var_set,var_set)))>2 && sum(sum(MI_01(var_set,var_set)-CMI_01(var_set,var_set)))~=0)
                         w=CMI_01.*MI_01;
                         diff_syn=diff_syn+(CMI_01-MI_01);
                         CMI_binary(var_set,var_set)=CMI_binary(var_set,var_set).*w(var_set,var_set);
@@ -174,7 +177,7 @@ a1=subplot(2,1,1);imagesc(C_plot,[-max(max(abs(C_plot))) max(max(abs(C_plot)))])
 title('C - lower tri: pairwise, upper tri: conditioned');
 colormap(a1,brewermap([],'PRGn'));colorbar
 xticks(a1,1:n);yticks(a1,1:n);
-text(-n-2,n-2,titlestr,'FontSize',12);
+text(-n-2.2,n-2,titlestr,'FontSize',12);
 a2=subplot(2,1,2);imagesc(MI_plot);axis square;
 title({'MI - lower tri: pairwise, upper tri: conditioned', 'red: shared info FP, yellow: collider FP'});
 colormap(a2,brewermap([],'BuGn'));colorbar
