@@ -3,7 +3,7 @@
 clear;clc;
 rng(1423);
 np=10000;
-example='chain'; % choose 'collider', 'chain', 'synergy'
+example='synergy'; % choose 'collider', 'chain', 'synergy'
 %%% HERE LOAD YOUR DATA, CALL IT mydata, or generate it %%%%%%%%%%
 
 switch example

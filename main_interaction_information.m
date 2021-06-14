@@ -2,7 +2,8 @@
 % main script interaction information
 clear;clc;
 %%% HERE LOAD YOUR DATA, CALL IT mydata %%%%%%%%%%
-load('C:\Users\dmarinaz\Dropbox\code\MI_phys_networks\ptsd.mat');mydata=data;clear data;
+load('C:\Users\dmarinaz\Dropbox\code\MI_psych_networks\ex_coll.mat');mydata=data;clear data;
+%load('C:\Users\dmarinaz\Dropbox\code\MI_phys_networks\ptsd.mat');mydata=data;clear data;
 %%%
 [npoints, n]=size(mydata); %make sure that the variables are the 2nd dimension
 p_val=0.05; %p value for surrogates
@@ -104,3 +105,11 @@ for i=1:n
         end
     end
 end
+c=corr(mydata);pc=partialcorr(mydata);for i=1:n;c(i,i)=0;pc(i,i)=0;end
+
+C_plot=triu(pc)+triu(c,1)';  
+MI_plot=triu(CMI)+triu(MI,1)';
+
+figure;
+a1=subplot(2,1,1);imagesc(C_plot,[-max(max(abs(C_plot))) max(max(abs(C_plot)))]);title('C - lower tri pairwise, upper tri conditioned');colormap(a1,brewermap([],'PRGn'));colorbar
+a2=subplot(2,1,2);imagesc(MI_plot);title('MI - lower tri pairwise, upper tri conditioned');gca;colormap(a2,brewermap([],'BuGn'));colorbar
